@@ -6,99 +6,97 @@
 <title>Le Souffle de l'Éternel — Console</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg:#0A0A0A; --bg-raised:#141414; --bg-surface:#1C1C1C;
-    --border:#262626; --border-strong:#3A3A3A;
-    --gold:#D4A574; --gold-dim:#9C7A56; --gold-glow:rgba(212,165,116,.15);
-    --text:#F5F1E8; --text-muted:#8A857A; --text-dim:#5A554D;
-    --success:#7FB069; --warning:#E0B468; --danger:#C77B6E; --info:#7AA5B8;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0A0A0A;--bg-raised:#141414;--bg-surface:#1C1C1C;
+    --border:#262626;--border-strong:#3A3A3A;
+    --gold:#D4A574;--gold-dim:#9C7A56;--gold-glow:rgba(212,165,116,.15);
+    --text:#F5F1E8;--text-muted:#8A857A;--text-dim:#5A554D;
+    --success:#7FB069;--warning:#E0B468;--danger:#C77B6E;--info:#7AA5B8;
   }
-  body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; padding-bottom:80px; }
-  header { position:sticky; top:0; z-index:50; background:var(--bg-raised); border-bottom:1px solid var(--border); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
-  .header-title { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-dim); }
-  .header-sub { font-size:15px; font-weight:500; margin-top:2px; }
-  .btn-auto { border:1px solid var(--border-strong); background:transparent; color:var(--text-muted); border-radius:999px; padding:6px 16px; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .2s; }
-  .btn-auto.on { background:var(--gold); color:var(--bg); border-color:var(--gold); }
-  nav { position:fixed; bottom:0; left:0; right:0; background:var(--bg-raised); border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(4,1fr); height:64px; z-index:50; }
-  .nav-btn { background:transparent; border:none; color:var(--text-muted); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:10px; font-weight:500; }
-  .nav-btn.active { color:var(--gold); }
-  .nav-btn svg { width:20px; height:20px; }
-  main { max-width:760px; margin:0 auto; padding:16px 16px 24px; }
-  .view { display:none; animation:fadeIn .25s ease-out; }
-  .view.active { display:block; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1} }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes progress { 0%{width:0%} 60%{width:80%} 100%{width:95%} }
-  .card { background:var(--bg-raised); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:12px; }
-  .card.today { border-color:var(--gold-dim); }
-  .day-header { display:flex; align-items:baseline; gap:8px; margin-bottom:12px; }
-  .day-name { font-size:13px; font-weight:500; text-transform:capitalize; }
-  .day-date { font-size:12px; color:var(--text-muted); }
-  .today-badge { margin-left:auto; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); font-weight:500; }
-  input[type=text],input[type=url],input[type=time],input[type=date],select,textarea {
-    width:100%; background:var(--bg-raised); border:1px solid var(--border);
-    border-radius:8px; padding:9px 12px; color:var(--text);
-    font-size:14px; font-family:inherit; outline:none; transition:border .15s;
-  }
-  input:focus,select:focus,textarea:focus { border-color:var(--gold); }
-  input::placeholder { color:var(--text-dim); }
-  .verset-input { font-family:'Cormorant Garamond',Georgia,serif; font-style:italic; color:var(--gold); font-size:15px; }
-  .mb8 { margin-bottom:8px; }
-  .mb14 { margin-bottom:14px; }
-  .slot { display:flex; align-items:center; gap:8px; background:var(--bg-surface); border-radius:8px; padding:8px 10px; font-size:13px; margin-bottom:6px; }
-  .slot-icon { color:var(--gold-dim); flex-shrink:0; }
-  .slot-label { font-weight:500; flex-shrink:0; }
-  .slot-time { color:var(--text-muted); font-size:12px; flex-shrink:0; }
-  .slot-status { margin-left:auto; font-size:11px; font-weight:500; flex-shrink:0; }
-  .slot-btn { background:transparent; border:none; cursor:pointer; padding:4px; border-radius:6px; display:flex; color:var(--gold); }
-  .slot-btn:disabled { color:var(--text-dim); cursor:not-allowed; }
-  .slot-btn svg { width:15px; height:15px; }
-  .btn-primary { width:100%; background:var(--gold); color:var(--bg); border:none; border-radius:10px; padding:14px; font-size:15px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
-  .btn-primary:disabled { background:var(--border); color:var(--text-dim); cursor:not-allowed; }
-  .btn-secondary { background:transparent; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 12px; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; width:100%; }
-  .btn-ai { background:var(--gold-glow); border:1px solid var(--gold-dim); color:var(--gold); border-radius:10px; padding:13px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; transition:all .2s; }
-  .btn-ai:hover { background:rgba(212,165,116,.25); }
-  .btn-ai:disabled { opacity:.5; cursor:not-allowed; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
-  .field { margin-bottom:14px; }
-  .field label { display:block; font-size:12px; color:var(--text-muted); margin-bottom:5px; font-weight:500; }
-  .field-hint { font-size:11px; color:var(--text-dim); margin-top:4px; }
-  .section-title { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-dim); font-weight:500; margin:0 0 12px; }
-  .section { margin-bottom:24px; }
-  #toast { position:fixed; bottom:88px; left:50%; transform:translateX(-50%); background:var(--bg-raised); border-radius:10px; padding:10px 18px; font-size:13px; display:none; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,.4); z-index:200; max-width:90vw; border:1px solid var(--border); }
-  #toast.show { display:flex; }
-  .log-entry { background:var(--bg-raised); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:8px; }
-  .log-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:13px; }
-  .log-theme { font-size:13px; margin-bottom:2px; }
-  .log-verset { font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold); font-size:13px; margin-bottom:6px; }
-  .log-meta { font-size:11px; color:var(--text-muted); }
-  .badge { font-size:10px; border:1px solid var(--border); border-radius:4px; padding:1px 5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
-  .week-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-  .week-nav button { background:var(--bg-raised); border:1px solid var(--border); border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; color:var(--text); cursor:pointer; font-size:18px; }
-  .week-label { font-size:15px; font-weight:500; color:var(--text); cursor:pointer; }
-  .week-label.current { color:var(--gold); }
-  .hint-box { display:flex; gap:8px; align-items:flex-start; padding:10px 12px; background:var(--bg-surface); border-radius:8px; font-size:12px; color:var(--text-muted); margin-top:8px; }
-  .type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-  .type-btn { border:1px solid var(--border); background:var(--bg-raised); color:var(--text); border-radius:8px; padding:10px 6px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:12px; font-weight:500; }
-  .type-btn.active { border-color:var(--gold); background:var(--gold-glow); color:var(--gold); }
-  .spin { animation:spin 1s linear infinite; display:inline-block; }
-  .test-result { margin-top:10px; padding:10px 12px; background:var(--bg-surface); border-radius:8px; font-size:12px; }
-  .test-result pre { white-space:pre-wrap; color:var(--text-muted); font-size:11px; margin-top:4px; max-height:120px; overflow:auto; }
-  .ia-panel { background:var(--bg-surface); border:1px solid var(--gold-dim); border-radius:12px; padding:16px; margin-bottom:20px; }
-  .ia-panel-title { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-dim); font-weight:500; margin-bottom:12px; }
-  .ia-preview { margin-top:14px; display:none; }
-  .ia-preview-day { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
-  .ia-preview-day:last-child { border-bottom:none; }
-  .ia-preview-jour { font-weight:500; color:var(--text-muted); width:70px; flex-shrink:0; text-transform:capitalize; font-size:12px; padding-top:2px; }
-  .ia-preview-content { flex:1; }
-  .ia-preview-theme { color:var(--text); margin-bottom:2px; }
-  .ia-preview-verset { font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold); font-size:14px; }
-  .ia-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
-  .progress-bar { height:3px; background:var(--border); border-radius:2px; margin-top:12px; overflow:hidden; display:none; }
-  .progress-fill { height:100%; background:var(--gold); border-radius:2px; animation:progress 4s ease-in-out forwards; }
-  .debug-box { background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-top:10px; font-size:11px; color:var(--text-muted); display:none; }
-  .debug-box pre { white-space:pre-wrap; word-break:break-all; max-height:150px; overflow:auto; }
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding-bottom:80px}
+  header{position:sticky;top:0;z-index:50;background:var(--bg-raised);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .header-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim)}
+  .header-sub{font-size:15px;font-weight:500;margin-top:2px}
+  .btn-auto{border:1px solid var(--border-strong);background:transparent;color:var(--text-muted);border-radius:999px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+  .btn-auto.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg-raised);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);height:64px;z-index:50}
+  .nav-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:500}
+  .nav-btn.active{color:var(--gold)}
+  .nav-btn svg{width:20px;height:20px}
+  main{max-width:760px;margin:0 auto;padding:16px 16px 24px}
+  .view{display:none;animation:fadeIn .25s ease-out}
+  .view.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes progress{0%{width:0%}60%{width:80%}100%{width:95%}}
+  .card{background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+  .card.today{border-color:var(--gold-dim)}
+  .day-header{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+  .day-name{font-size:13px;font-weight:500;text-transform:capitalize}
+  .day-date{font-size:12px;color:var(--text-muted)}
+  .today-badge{margin-left:auto;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);font-weight:500}
+  input[type=text],input[type=url],input[type=time],input[type=date],select,textarea{width:100%;background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  input::placeholder{color:var(--text-dim)}
+  .verset-input{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;color:var(--gold);font-size:15px}
+  .mb8{margin-bottom:8px}.mb14{margin-bottom:14px}
+  .slot{display:flex;align-items:center;gap:8px;background:var(--bg-surface);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:6px}
+  .slot-icon{color:var(--gold-dim);flex-shrink:0}
+  .slot-label{font-weight:500;flex-shrink:0}
+  .slot-time{color:var(--text-muted);font-size:12px;flex-shrink:0}
+  .slot-status{margin-left:auto;font-size:11px;font-weight:500;flex-shrink:0}
+  .slot-btn{background:transparent;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;color:var(--gold)}
+  .slot-btn:disabled{color:var(--text-dim);cursor:not-allowed}
+  .slot-btn svg{width:15px;height:15px}
+  .btn-primary{width:100%;background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed}
+  .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%}
+  .btn-ai{background:var(--gold-glow);border:1px solid var(--gold-dim);color:var(--gold);border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:all .2s}
+  .btn-ai:hover{background:rgba(212,165,116,.25)}
+  .btn-ai:disabled{opacity:.5;cursor:not-allowed}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:5px;font-weight:500}
+  .field-hint{font-size:11px;color:var(--text-dim);margin-top:4px}
+  .section-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);font-weight:500;margin:0 0 12px}
+  .section{margin-bottom:24px}
+  #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--bg-raised);border-radius:10px;padding:10px 18px;font-size:13px;display:none;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:200;max-width:90vw;border:1px solid var(--border)}
+  #toast.show{display:flex}
+  .log-entry{background:var(--bg-raised);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+  .log-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px}
+  .log-theme{font-size:13px;margin-bottom:2px}
+  .log-verset{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:13px;margin-bottom:6px}
+  .log-meta{font-size:11px;color:var(--text-muted)}
+  .badge{font-size:10px;border:1px solid var(--border);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+  .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .week-nav button{background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;font-size:18px}
+  .week-label{font-size:15px;font-weight:500;color:var(--text);cursor:pointer}
+  .week-label.current{color:var(--gold)}
+  .hint-box{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;background:var(--bg-surface);border-radius:8px;font-size:12px;color:var(--text-muted);margin-top:8px}
+  .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .type-btn{border:1px solid var(--border);background:var(--bg-raised);color:var(--text);border-radius:8px;padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:500}
+  .type-btn.active{border-color:var(--gold);background:var(--gold-glow);color:var(--gold)}
+  .spin{animation:spin 1s linear infinite;display:inline-block}
+  .test-result{margin-top:10px;padding:10px 12px;background:var(--bg-surface);border-radius:8px;font-size:12px}
+  .test-result pre{white-space:pre-wrap;color:var(--text-muted);font-size:11px;margin-top:4px;max-height:120px;overflow:auto}
+  .ia-panel{background:var(--bg-surface);border:1px solid var(--gold-dim);border-radius:12px;padding:16px;margin-bottom:20px}
+  .ia-panel-title{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);font-weight:500;margin-bottom:12px}
+  .ia-preview{margin-top:14px;display:none}
+  .ia-preview-day{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .ia-preview-day:last-child{border-bottom:none}
+  .ia-preview-jour{font-weight:500;color:var(--text-muted);width:70px;flex-shrink:0;text-transform:capitalize;font-size:12px;padding-top:2px}
+  .ia-preview-content{flex:1}
+  .ia-preview-theme{color:var(--text);margin-bottom:2px}
+  .ia-preview-verset{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:14px}
+  .ia-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:12px;overflow:hidden;display:none}
+  .progress-fill{height:100%;background:var(--gold);border-radius:2px;animation:progress 4s ease-in-out forwards}
+  .debug-box{background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--text-muted);display:none}
+  .debug-box pre{white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
+  .n8n-status{font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .n8n-status.test{background:rgba(224,180,104,.1);border:1px solid rgba(224,180,104,.3);color:var(--warning)}
+  .n8n-status.prod{background:rgba(127,176,105,.1);border:1px solid rgba(127,176,105,.3);color:var(--success)}
 </style>
 </head>
 <body>
@@ -117,17 +115,13 @@
   <div class="view active" id="view-planning">
     <div class="ia-panel">
       <div class="ia-panel-title">✦ Génération IA des thèmes</div>
+      <div id="ia-n8n-status" class="n8n-status test">⚠ Mode test — active le workflow n8n pour la production</div>
       <div class="field">
         <label>Semaine du (lundi)</label>
         <input type="date" id="ia-date-debut">
       </div>
-      <div class="field">
-        <label>Clé API Anthropic</label>
-        <input type="password" id="ia-api-key" placeholder="sk-ant-…">
-        <div class="field-hint">Stockée localement, jamais envoyée ailleurs qu'à Anthropic.</div>
-      </div>
       <button class="btn-ai" id="ia-btn" onclick="genererSemaine()">✦ Générer les 7 thèmes</button>
-      <div class="progress-bar" id="ia-progress"><div class="progress-fill" id="ia-progress-fill"></div></div>
+      <div class="progress-bar" id="ia-progress"><div class="progress-fill"></div></div>
       <div class="debug-box" id="debug-box"><pre id="debug-text"></pre></div>
       <div class="ia-preview" id="ia-preview">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-dim);margin-bottom:8px">Aperçu — à confirmer</div>
@@ -168,7 +162,7 @@
     <div class="field"><label>Thème</label><input type="text" id="lancer-theme" placeholder="La paix de Dieu"></div>
     <div class="field"><label>Verset</label><input type="text" class="verset-input" id="lancer-verset" placeholder="Philippiens 4:7"></div>
     <button class="btn-primary" id="lancer-btn" onclick="lancerManuel()">➤ Déclencher</button>
-    <div class="hint-box" id="lancer-hint" style="display:none">⚠ Configure d'abord l'URL du webhook dans Réglages.</div>
+    <div class="hint-box" id="lancer-hint" style="display:none">⚠ Configure l'URL du webhook épisodes dans Réglages.</div>
   </div>
 
   <!-- VUE ACTIVITE -->
@@ -183,15 +177,27 @@
   <!-- VUE REGLAGES -->
   <div class="view" id="view-reglages">
     <h2 style="font-size:20px;font-weight:500;margin:0 0 18px">Réglages</h2>
+
     <div class="section">
-      <div class="section-title">Webhook n8n</div>
+      <div class="section-title">Webhook — Génération IA</div>
       <div class="field">
-        <label>URL du webhook</label>
-        <input type="url" id="reg-webhook" placeholder="https://westidiam.app.n8n.cloud/webhook/...">
+        <label>URL webhook IA (n8n souffle-ia)</label>
+        <input type="url" id="reg-webhook-ia" placeholder="https://westidiam.app.n8n.cloud/webhook/souffle-ia">
+        <div class="field-hint">Utilisé pour générer les thèmes via Claude dans n8n.</div>
       </div>
-      <button class="btn-secondary" onclick="testerWebhook()">⚡ Tester le webhook</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Webhook — Épisodes</div>
+      <div class="field">
+        <label>URL webhook épisodes (n8n souffle-episode)</label>
+        <input type="url" id="reg-webhook-episode" placeholder="https://westidiam.app.n8n.cloud/webhook/souffle-episode">
+        <div class="field-hint">Utilisé pour déclencher matin / midi / soir.</div>
+      </div>
+      <button class="btn-secondary" onclick="testerWebhookEpisode()">⚡ Tester le webhook épisodes</button>
       <div id="test-result" class="test-result" style="display:none"></div>
     </div>
+
     <div class="section">
       <div class="section-title">Horaires</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
@@ -200,14 +206,7 @@
         <div class="field"><label>☾ Soir</label><input type="time" id="reg-soir" value="21:00"></div>
       </div>
     </div>
-    <div class="section">
-      <div class="section-title">Clé API Anthropic</div>
-      <div class="field">
-        <label>Clé API</label>
-        <input type="password" id="reg-api-key" placeholder="sk-ant-…">
-        <div class="field-hint">Stockée localement dans ton navigateur.</div>
-      </div>
-    </div>
+
     <button class="btn-primary" onclick="sauvegarderReglages()">Enregistrer</button>
   </div>
 
@@ -236,6 +235,13 @@
 
 <script>
 // ============================================================
+// URLs N8N — change webhook-test → webhook quand en production
+// ============================================================
+const N8N_IA_URL      = 'https://westidiam.app.n8n.cloud/webhook-test/souffle-ia';
+const N8N_EPISODE_URL = 'https://westidiam.app.n8n.cloud/webhook-test/souffle-episode';
+const MODE_PROD = false; // passe à true quand les workflows sont activés
+
+// ============================================================
 // CONSTANTES
 // ============================================================
 const JOURS = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
@@ -245,11 +251,11 @@ const TYPE_CFG = {
   long_soir:  { label:'Soir',  icon:'☾', heureKey:'heure_soir'  }
 };
 const STATUT_CFG = {
-  'prêt':    { label:'Prêt',     color:'var(--text-muted)' },
-  en_cours:  { label:'En cours', color:'var(--gold)'       },
-  'terminé': { label:'Terminé',  color:'var(--success)'    },
-  erreur:    { label:'Erreur',   color:'var(--danger)'     },
-  pause:     { label:'Pause',    color:'var(--info)'       }
+  'prêt':   { label:'Prêt',     color:'var(--text-muted)' },
+  en_cours: { label:'En cours', color:'var(--gold)'       },
+  'terminé':{ label:'Terminé',  color:'var(--success)'    },
+  erreur:   { label:'Erreur',   color:'var(--danger)'     },
+  pause:    { label:'Pause',    color:'var(--info)'       }
 };
 
 // ============================================================
@@ -260,36 +266,26 @@ function calculerPaques(y) {
         f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
         h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
         l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
-        mo=Math.floor((h+l-7*m+114)/31),
-        dy=((h+l-7*m+114)%31)+1;
+        mo=Math.floor((h+l-7*m+114)/31),dy=((h+l-7*m+114)%31)+1;
   return new Date(y,mo-1,dy);
 }
-
 function getFetes(date) {
-  const fetes=[], j=date.getDate(), m=date.getMonth()+1, a=date.getFullYear();
+  const fetes=[],j=date.getDate(),m=date.getMonth()+1,a=date.getFullYear();
   const fixes={'1-1':['Jour de l\'An'],'6-1':['Épiphanie'],'2-2':['Chandeleur'],
     '14-2':['Saint-Valentin'],'19-3':['Saint-Joseph'],'25-3':['Annonciation'],
     '1-5':['Fête du Travail'],'8-5':['Victoire 1945'],'24-6':['Saint-Jean-Baptiste'],
     '14-7':['Fête Nationale'],'15-8':['Assomption'],'1-11':['Toussaint'],
     '2-11':['Fête des Morts'],'11-11':['Armistice'],'8-12':['Immaculée Conception'],
     '24-12':['Veille de Noël'],'25-12':['Noël 🎄'],'26-12':['Saint-Étienne'],'31-12':['Saint-Sylvestre']};
-  if (fixes[`${j}-${m}`]) fetes.push(...fixes[`${j}-${m}`]);
+  if(fixes[`${j}-${m}`]) fetes.push(...fixes[`${j}-${m}`]);
   const paques=calculerPaques(a);
   const diff=Math.round((date-paques)/86400000);
   const rel={'-46':'Mercredi des Cendres','-7':'Dimanche des Rameaux','-3':'Jeudi Saint',
     '-2':'Vendredi Saint ✝','-1':'Samedi Saint','0':'Pâques 🕊','1':'Lundi de Pâques',
     '39':'Ascension','49':'Pentecôte 🔥','50':'Lundi de Pentecôte','56':'Fête de la Trinité','60':'Corpus Christi'};
-  if (rel[String(diff)]) fetes.push(rel[String(diff)]);
-  // Fête des Mères : dernier dimanche de mai
-  if (m===5 && date.getDay()===0) {
-    const suiv=new Date(a,4,j+7);
-    if (suiv.getMonth()!==4) fetes.push('Fête des Mères 💐');
-  }
-  // Fête des Pères : 3e dimanche de juin
-  if (m===6 && date.getDay()===0) {
-    let cnt=0; for(let d2=1;d2<=j;d2++) if(new Date(a,5,d2).getDay()===0) cnt++;
-    if (cnt===3) fetes.push('Fête des Pères 👨‍👧');
-  }
+  if(rel[String(diff)]) fetes.push(rel[String(diff)]);
+  if(m===5&&date.getDay()===0){const s=new Date(a,4,j+7);if(s.getMonth()!==4)fetes.push('Fête des Mères 💐')}
+  if(m===6&&date.getDay()===0){let cnt=0;for(let d2=1;d2<=j;d2++)if(new Date(a,5,d2).getDay()===0)cnt++;if(cnt===3)fetes.push('Fête des Pères 👨‍👧')}
   return fetes;
 }
 
@@ -297,13 +293,13 @@ function getFetes(date) {
 // STATE & STORAGE
 // ============================================================
 let state = {
-  settings:{ webhook_url:'', heure_matin:'07:00', heure_midi:'12:00', heure_soir:'21:00', mode_auto:false, api_key:'' },
+  settings:{ webhook_ia:'', webhook_episode:'', heure_matin:'07:00', heure_midi:'12:00', heure_soir:'21:00', mode_auto:false },
   planning:[], activite:[], weekOffset:0, lancerType:'long_soir'
 };
 let iaSemaineProposa = null;
 
 const load = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch{ return null; } };
-const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const save = (k,v) => localStorage.setItem(k,JSON.stringify(v));
 
 // ============================================================
 // DATES
@@ -311,12 +307,12 @@ const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 const todayYMD = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 function getMonday(date) {
-  const d=new Date(date), day=d.getDay();
-  d.setDate(d.getDate()+(day===0?-6:1-day)); d.setHours(0,0,0,0); return d;
+  const d=new Date(date),day=d.getDay();
+  d.setDate(d.getDate()+(day===0?-6:1-day));d.setHours(0,0,0,0);return d;
 }
-const getWeekDays = monday => Array.from({length:7},(_,i)=>{ const d=new Date(monday); d.setDate(monday.getDate()+i); return d; });
+const getWeekDays = m => Array.from({length:7},(_,i)=>{ const d=new Date(m);d.setDate(m.getDate()+i);return d; });
 const buildEmptyDay = date => ({
-  date:ymd(date), jour:JOURS[(date.getDay()+6)%7], theme:'', verset:'',
+  date:ymd(date),jour:JOURS[(date.getDay()+6)%7],theme:'',verset:'',
   short_matin:{statut:'prêt',lance_le:null},
   short_midi: {statut:'prêt',lance_le:null},
   long_soir:  {statut:'prêt',lance_le:null}
@@ -327,27 +323,30 @@ const escHtml = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replac
 // INIT
 // ============================================================
 function init() {
-  state.settings = {...state.settings, ...(load('settings')||{})};
+  state.settings = {...state.settings,...(load('settings')||{})};
   state.planning  = load('planning')  || [];
   state.activite  = load('activite')  || [];
 
-  if (!state.planning.length) {
+  if(!state.planning.length){
     state.planning = getWeekDays(getMonday(new Date())).map(buildEmptyDay);
-    save('planning', state.planning);
+    save('planning',state.planning);
   }
 
-  // Pré-remplir les champs
-  document.getElementById('reg-webhook').value  = state.settings.webhook_url;
-  document.getElementById('reg-matin').value    = state.settings.heure_matin;
-  document.getElementById('reg-midi').value     = state.settings.heure_midi;
-  document.getElementById('reg-soir').value     = state.settings.heure_soir;
-  document.getElementById('reg-api-key').value  = state.settings.api_key;
-  document.getElementById('ia-api-key').value   = state.settings.api_key;
+  document.getElementById('reg-webhook-ia').value      = state.settings.webhook_ia      || N8N_IA_URL;
+  document.getElementById('reg-webhook-episode').value = state.settings.webhook_episode  || N8N_EPISODE_URL;
+  document.getElementById('reg-matin').value = state.settings.heure_matin;
+  document.getElementById('reg-midi').value  = state.settings.heure_midi;
+  document.getElementById('reg-soir').value  = state.settings.heure_soir;
 
-  // Date IA = lundi de la semaine en cours
-  const monday = getMonday(new Date());
-  document.getElementById('ia-date-debut').value = ymd(monday);
+  document.getElementById('ia-date-debut').value = ymd(getMonday(new Date()));
   document.getElementById('lancer-date').value   = todayYMD();
+
+  // Statut mode test/prod
+  const statusEl = document.getElementById('ia-n8n-status');
+  if(MODE_PROD){
+    statusEl.className='n8n-status prod';
+    statusEl.textContent='✓ Mode production actif';
+  }
 
   updateAutoBtn();
   renderPlanning();
@@ -357,21 +356,16 @@ function init() {
 }
 
 // ============================================================
-// IA — GÉNÉRATION (appel direct, sans web_search, sans boucle)
+// IA — GÉNÉRATION VIA N8N
 // ============================================================
 async function genererSemaine() {
-  const apiKey = document.getElementById('ia-api-key').value.trim();
-  if (!apiKey) { showToast('Entre ta clé API Anthropic', 'warning'); return; }
-  if (!apiKey.startsWith('sk-ant-')) { showToast('Clé API invalide (doit commencer par sk-ant-)', 'danger'); return; }
-
   const dateDebut = document.getElementById('ia-date-debut').value;
-  if (!dateDebut) { showToast('Sélectionne une date', 'warning'); return; }
+  if(!dateDebut){ showToast('Sélectionne une date','warning'); return; }
 
-  const monday = new Date(dateDebut + 'T12:00');
+  const monday = new Date(dateDebut+'T12:00');
   const days   = getWeekDays(monday);
 
-  // Construction des jours avec fêtes
-  const lignesJours = days.map((d,i) => {
+  const lignesJours = days.map((d,i)=>{
     const fetes = getFetes(d);
     const label = `${JOURS[i]} ${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`;
     return fetes.length ? `${label} [${fetes.join(', ')}]` : label;
@@ -387,86 +381,69 @@ Règles :
 - Verset biblique précis (Livre chapitre:verset)
 - Si fête chrétienne ce jour → thème OBLIGATOIREMENT lié à cette fête
 - Pas de répétition de livres bibliques entre les jours
-- Chaque semaine doit être UNIQUE selon le temps liturgique 2026
+- Chaque semaine UNIQUE selon le temps liturgique 2026
 - Langue : français
 
-Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre avant ou après :
+Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
 [{"jour":"lundi","theme":"...","verset":"...","fete":""},{"jour":"mardi","theme":"...","verset":"...","fete":""},{"jour":"mercredi","theme":"...","verset":"...","fete":""},{"jour":"jeudi","theme":"...","verset":"...","fete":""},{"jour":"vendredi","theme":"...","verset":"...","fete":""},{"jour":"samedi","theme":"...","verset":"...","fete":""},{"jour":"dimanche","theme":"...","verset":"...","fete":""}]`;
 
-  // UI
   const btn = document.getElementById('ia-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">✦</span> Génération…';
-  document.getElementById('ia-progress').style.display = 'block';
-  document.getElementById('ia-preview').style.display  = 'none';
-  document.getElementById('debug-box').style.display   = 'none';
+  btn.disabled=true;btn.innerHTML='<span class="spin">✦</span> Génération…';
+  document.getElementById('ia-progress').style.display='block';
+  document.getElementById('ia-preview').style.display='none';
+  document.getElementById('debug-box').style.display='none';
+
+  const url = state.settings.webhook_ia || N8N_IA_URL;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-client-side-keys': 'allow'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{ role:'user', content: prompt }]
-      })
+    const res = await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ body:{ lignesJours, annee:'2026', prompt } })
     });
-    // Erreur HTTP
-    if (!res.ok) {
-      const errData = await res.json().catch(()=>({}));
-      const msg = errData?.error?.message || `HTTP ${res.status}`;
-      showDebug(`ERREUR HTTP ${res.status}:\n${JSON.stringify(errData, null, 2)}`);
-      throw new Error(msg);
+
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      showDebug(`ERREUR HTTP ${res.status}:\n${JSON.stringify(err,null,2)}`);
+      throw new Error(err?.message||`HTTP ${res.status}`);
     }
 
     const data = await res.json();
-    showDebug(`RÉPONSE OK:\nstop_reason: ${data.stop_reason}\n\n${JSON.stringify(data.content, null, 2)}`);
+    showDebug(`RÉPONSE n8n:\n${JSON.stringify(data,null,2)}`);
 
-    // Extraire le texte
-    const rawText = data.content?.find(b => b.type === 'text')?.text || '';
-    if (!rawText) throw new Error('Réponse vide d\'Anthropic');
+    // Accepte { semaine:[...] } ou directement [...]
+    let semaine = data.semaine || (Array.isArray(data)?data:null);
 
-    // Parser le JSON (robuste)
-    const match = rawText.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Pas de JSON trouvé dans la réponse');
+    // Si n8n renvoie le texte brut, on parse le JSON dedans
+    if(!semaine && data.text){
+      const match = data.text.match(/\[[\s\S]*\]/);
+      if(match) semaine = JSON.parse(match[0]);
+    }
 
-    const semaine = JSON.parse(match[0]);
-    if (!Array.isArray(semaine) || semaine.length !== 7) throw new Error('JSON invalide — pas 7 jours');
+    if(!semaine||!Array.isArray(semaine)||semaine.length!==7)
+      throw new Error('Réponse n8n invalide — vérifie le nœud Code dans n8n');
 
-    // Succès
     iaSemaineProposa = { semaine, monday };
     afficherPreview(semaine, days);
 
-    // Sauver la clé
-    state.settings.api_key = apiKey;
-    save('settings', state.settings);
-    document.getElementById('reg-api-key').value = apiKey;
-
-  } catch(err) {
-    const msg = err.message;
-    showToast(`Erreur : ${msg}`, 'danger');
+  } catch(err){
+    showToast(`Erreur IA : ${err.message}`,'danger');
     showDebug(`EXCEPTION: ${err.name}\n${err.message}`);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✦ Générer les 7 thèmes';
-    document.getElementById('ia-progress').style.display = 'none';
+    btn.disabled=false;btn.innerHTML='✦ Générer les 7 thèmes';
+    document.getElementById('ia-progress').style.display='none';
   }
 }
 
-function showDebug(text) {
-  document.getElementById('debug-box').style.display = 'block';
-  document.getElementById('debug-text').textContent = text;
+function showDebug(text){
+  document.getElementById('debug-box').style.display='block';
+  document.getElementById('debug-text').textContent=text;
 }
 
-function afficherPreview(semaine, days) {
-  document.getElementById('ia-preview-list').innerHTML = semaine.map((j,i) => {
-    const dl = days[i].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-    const feteHtml = j.fete ? `<div style="font-size:10px;color:var(--warning);margin-bottom:3px">🎉 ${escHtml(j.fete)}</div>` : '';
+function afficherPreview(semaine,days){
+  document.getElementById('ia-preview-list').innerHTML=semaine.map((j,i)=>{
+    const dl=days[i].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    const feteHtml=j.fete?`<div style="font-size:10px;color:var(--warning);margin-bottom:3px">🎉 ${escHtml(j.fete)}</div>`:'';
     return `<div class="ia-preview-day">
       <div class="ia-preview-jour">${escHtml(j.jour)}<br><span style="font-size:10px;color:var(--text-dim)">${dl}</span></div>
       <div class="ia-preview-content">${feteHtml}
@@ -475,67 +452,68 @@ function afficherPreview(semaine, days) {
       </div>
     </div>`;
   }).join('');
-  document.getElementById('ia-preview').style.display = 'block';
+  document.getElementById('ia-preview').style.display='block';
 }
 
-function appliquerSemaine() {
-  if (!iaSemaineProposa) return;
-  const { semaine, monday } = iaSemaineProposa;
-  const days = getWeekDays(monday);
-  days.forEach((d,i) => {
-    const ds = ymd(d), j = semaine[i];
-    const dayObj = {...buildEmptyDay(d), theme:j.theme, verset:j.verset};
-    const idx = state.planning.findIndex(p => p.date === ds);
-    if (idx>=0) state.planning[idx]=dayObj; else state.planning.push(dayObj);
+function appliquerSemaine(){
+  if(!iaSemaineProposa) return;
+  const {semaine,monday}=iaSemaineProposa;
+  const days=getWeekDays(monday);
+  days.forEach((d,i)=>{
+    const ds=ymd(d),j=semaine[i];
+    const dayObj={...buildEmptyDay(d),theme:j.theme,verset:j.verset};
+    const idx=state.planning.findIndex(p=>p.date===ds);
+    if(idx>=0)state.planning[idx]=dayObj;else state.planning.push(dayObj);
   });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
-  save('planning', state.planning);
-  const diff = Math.round((monday - getMonday(new Date())) / 604800000);
-  state.weekOffset = diff;
+  save('planning',state.planning);
+  state.weekOffset=Math.round((monday-getMonday(new Date()))/604800000);
   renderPlanning();
-  document.getElementById('ia-preview').style.display = 'none';
-  document.getElementById('debug-box').style.display  = 'none';
-  iaSemaineProposa = null;
-  showToast('Thèmes appliqués ✓', 'success');
+  document.getElementById('ia-preview').style.display='none';
+  document.getElementById('debug-box').style.display='none';
+  iaSemaineProposa=null;
+  showToast('Thèmes appliqués ✓','success');
 }
 
 // ============================================================
-// PLANNING
+// PLANNING RENDER
 // ============================================================
-function renderPlanning() {
-  const monday = getMonday(new Date());
-  monday.setDate(monday.getDate() + state.weekOffset*7);
-  const days = getWeekDays(monday);
-  days.forEach(d => { if (!state.planning.find(p=>p.date===ymd(d))) state.planning.push(buildEmptyDay(d)); });
+function renderPlanning(){
+  const monday=getMonday(new Date());
+  monday.setDate(monday.getDate()+state.weekOffset*7);
+  const days=getWeekDays(monday);
+  days.forEach(d=>{ if(!state.planning.find(p=>p.date===ymd(d)))state.planning.push(buildEmptyDay(d)); });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
-  save('planning', state.planning);
+  save('planning',state.planning);
 
-  const lbl = document.getElementById('week-label');
-  if (state.weekOffset===0)       { lbl.textContent='Cette semaine'; lbl.classList.add('current'); }
-  else if (state.weekOffset===-1) { lbl.textContent='Semaine passée'; lbl.classList.remove('current'); }
-  else if (state.weekOffset===1)  { lbl.textContent='Semaine prochaine'; lbl.classList.remove('current'); }
-  else {
-    const fin=new Date(monday); fin.setDate(fin.getDate()+6);
+  const lbl=document.getElementById('week-label');
+  if(state.weekOffset===0){lbl.textContent='Cette semaine';lbl.classList.add('current');}
+  else if(state.weekOffset===-1){lbl.textContent='Semaine passée';lbl.classList.remove('current');}
+  else if(state.weekOffset===1){lbl.textContent='Semaine prochaine';lbl.classList.remove('current');}
+  else{
+    const fin=new Date(monday);fin.setDate(fin.getDate()+6);
     lbl.textContent=`${monday.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})} → ${fin.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`;
     lbl.classList.remove('current');
   }
 
-  const today = todayYMD();
-  document.getElementById('planning-list').innerHTML = days.map(d => {
-    const day = state.planning.find(p=>p.date===ymd(d)) || buildEmptyDay(d);
-    return buildDayCard(day, day.date===today);
+  const today=todayYMD();
+  document.getElementById('planning-list').innerHTML=days.map(d=>{
+    const day=state.planning.find(p=>p.date===ymd(d))||buildEmptyDay(d);
+    return buildDayCard(day,day.date===today);
   }).join('');
 }
 
-function buildDayCard(day, isToday) {
-  const dl = new Date(day.date+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-  const fetes = getFetes(new Date(day.date+'T12:00'));
-  const feteBadge = fetes.length ? `<span style="font-size:10px;color:var(--warning);margin-left:auto">${fetes[0]}</span>` : (isToday?`<span class="today-badge">Aujourd'hui</span>`:'');
+function buildDayCard(day,isToday){
+  const dl=new Date(day.date+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const fetes=getFetes(new Date(day.date+'T12:00'));
+  const feteBadge=fetes.length
+    ?`<span style="font-size:10px;color:var(--warning);margin-left:auto">${fetes[0]}</span>`
+    :(isToday?`<span class="today-badge">Aujourd'hui</span>`:'');
   let slots='';
-  Object.entries(TYPE_CFG).forEach(([key,conf]) => {
+  Object.entries(TYPE_CFG).forEach(([key,conf])=>{
     const slot=day[key]||{statut:'prêt'};
     const sc=STATUT_CFG[slot.statut]||STATUT_CFG['prêt'];
-    const dis=!day.theme||!day.verset||!state.settings.webhook_url;
+    const dis=!day.theme||!day.verset||!state.settings.webhook_episode;
     slots+=`<div class="slot">
       <span class="slot-icon">${conf.icon}</span>
       <span class="slot-label">${conf.label}</span>
@@ -552,8 +530,7 @@ function buildDayCard(day, isToday) {
   return `<div class="card ${isToday?'today':''}">
     <div class="day-header">
       <span class="day-name" style="${isToday?'color:var(--gold)':''}">${day.jour}</span>
-      <span class="day-date">${dl}</span>
-      ${feteBadge}
+      <span class="day-date">${dl}</span>${feteBadge}
     </div>
     <input class="mb8" type="text" placeholder="Thème" value="${escHtml(day.theme)}" onchange="updateDay('${day.date}','theme',this.value)">
     <input class="mb14 verset-input" type="text" placeholder="Verset" value="${escHtml(day.verset)}" onchange="updateDay('${day.date}','verset',this.value)">
@@ -561,45 +538,50 @@ function buildDayCard(day, isToday) {
   </div>`;
 }
 
-function updateDay(date,field,value) {
+function updateDay(date,field,value){
   const idx=state.planning.findIndex(p=>p.date===date);
-  if(idx>=0){ state.planning[idx][field]=value; save('planning',state.planning); }
+  if(idx>=0){state.planning[idx][field]=value;save('planning',state.planning);}
 }
-function togglePause(date,type) {
-  const idx=state.planning.findIndex(p=>p.date===date); if(idx<0) return;
+function togglePause(date,type){
+  const idx=state.planning.findIndex(p=>p.date===date);if(idx<0)return;
   state.planning[idx][type].statut=state.planning[idx][type].statut==='pause'?'prêt':'pause';
-  save('planning',state.planning); renderPlanning();
+  save('planning',state.planning);renderPlanning();
 }
 
 // ============================================================
-// WEBHOOK
+// WEBHOOK ÉPISODES (Workflow 2)
 // ============================================================
-async function triggerWebhook({date,theme,verset,episode_type,source}) {
-  if (!state.settings.webhook_url) { showToast('URL webhook manquante','danger'); return {ok:false}; }
+async function triggerWebhook({date,theme,verset,episode_type,source}){
+  const url = state.settings.webhook_episode || N8N_EPISODE_URL;
+  if(!url){showToast('URL webhook épisodes manquante','danger');return{ok:false};}
   const entry={timestamp:new Date().toISOString(),date,type:episode_type,theme,verset,statut:'en_cours',source,reponse_webhook:null};
-  try {
-    const res=await fetch(state.settings.webhook_url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,theme,verset,episode_type,source})});
+  try{
+    const res=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({date,theme,verset,episode_type,source})
+    });
     const text=await res.text().catch(()=>'');
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
     updateSlotStatut(date,episode_type,'en_cours');
     entry.reponse_webhook=text.slice(0,500);
-    addActivite(entry); showToast('Déclenchement envoyé ✓','success'); return {ok:true};
-  } catch(err) {
+    addActivite(entry);showToast('Épisode déclenché ✓','success');return{ok:true};
+  }catch(err){
     updateSlotStatut(date,episode_type,'erreur');
-    entry.statut='erreur'; entry.reponse_webhook=err.message;
-    addActivite(entry); showToast(`Échec : ${err.message}`,'danger'); return {ok:false};
+    entry.statut='erreur';entry.reponse_webhook=err.message;
+    addActivite(entry);showToast(`Échec : ${err.message}`,'danger');return{ok:false};
   }
 }
-function updateSlotStatut(date,type,statut) {
+function updateSlotStatut(date,type,statut){
   const idx=state.planning.findIndex(p=>p.date===date);
-  if(idx>=0){ state.planning[idx][type]={statut,lance_le:new Date().toISOString()}; save('planning',state.planning); renderPlanning(); }
+  if(idx>=0){state.planning[idx][type]={statut,lance_le:new Date().toISOString()};save('planning',state.planning);renderPlanning();}
 }
-function addActivite(entry) {
+function addActivite(entry){
   state.activite=[entry,...state.activite].slice(0,100);
-  save('activite',state.activite); renderActivite();
+  save('activite',state.activite);renderActivite();
 }
-async function triggerSlot(date,type) {
-  const day=state.planning.find(p=>p.date===date); if(!day) return;
+async function triggerSlot(date,type){
+  const day=state.planning.find(p=>p.date===date);if(!day)return;
   await triggerWebhook({date,theme:day.theme,verset:day.verset,episode_type:type,source:'dashboard_manuel'});
 }
 
@@ -607,35 +589,38 @@ async function triggerSlot(date,type) {
 // LANCER MANUEL
 // ============================================================
 let lancerLoading=false;
-function selectType(type,btn) {
+function selectType(type,btn){
   state.lancerType=type;
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
-function updateLancerHint() {
-  document.getElementById('lancer-hint').style.display=state.settings.webhook_url?'none':'flex';
+function updateLancerHint(){
+  document.getElementById('lancer-hint').style.display=state.settings.webhook_episode?'none':'flex';
 }
-async function lancerManuel() {
-  if(lancerLoading) return;
+async function lancerManuel(){
+  if(lancerLoading)return;
   const date=document.getElementById('lancer-date').value;
   const theme=document.getElementById('lancer-theme').value.trim();
   const verset=document.getElementById('lancer-verset').value.trim();
-  if(!theme||!verset){ showToast('Renseigne thème et verset','warning'); return; }
+  if(!theme||!verset){showToast('Renseigne thème et verset','warning');return;}
   lancerLoading=true;
   const btn=document.getElementById('lancer-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spin">↻</span> Envoi…';
+  btn.disabled=true;btn.innerHTML='<span class="spin">↻</span> Envoi…';
   await triggerWebhook({date,theme,verset,episode_type:state.lancerType,source:'dashboard_manuel'});
-  lancerLoading=false; btn.disabled=false; btn.innerHTML='➤ Déclencher';
+  lancerLoading=false;btn.disabled=false;btn.innerHTML='➤ Déclencher';
 }
 
 // ============================================================
 // ACTIVITE
 // ============================================================
-function renderActivite() {
+function renderActivite(){
   const list=document.getElementById('activite-list');
-  if(!state.activite.length){ list.innerHTML=`<div style="text-align:center;padding:40px 20px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:14px">Aucun déclenchement pour le moment.</div>`; return; }
+  if(!state.activite.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px 20px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:14px">Aucun déclenchement pour le moment.</div>`;
+    return;
+  }
   list.innerHTML=state.activite.map(a=>{
-    const conf=TYPE_CFG[a.type]||{}, stat=STATUT_CFG[a.statut]||STATUT_CFG['prêt'];
+    const conf=TYPE_CFG[a.type]||{},stat=STATUT_CFG[a.statut]||STATUT_CFG['prêt'];
     const ts=new Date(a.timestamp).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'});
     return `<div class="log-entry">
       <div class="log-header"><span>${conf.icon||'?'} ${conf.label||a.type}</span><span class="badge">${a.source==='dashboard_auto'?'Auto':'Manuel'}</span><span style="margin-left:auto;font-size:11px;font-weight:500;color:${stat.color}">${stat.label}</span></div>
@@ -646,122 +631,123 @@ function renderActivite() {
     </div>`;
   }).join('');
 }
-function viderActivite() {
-  if(!confirm('Vider tout l\'historique ?')) return;
-  state.activite=[]; save('activite',state.activite); renderActivite(); showToast('Historique vidé','info');
+function viderActivite(){
+  if(!confirm('Vider tout l\'historique ?'))return;
+  state.activite=[];save('activite',state.activite);renderActivite();showToast('Historique vidé','info');
 }
 
 // ============================================================
 // RÉGLAGES
 // ============================================================
-function sauvegarderReglages() {
-  state.settings.webhook_url = document.getElementById('reg-webhook').value.trim();
-  state.settings.heure_matin = document.getElementById('reg-matin').value;
-  state.settings.heure_midi  = document.getElementById('reg-midi').value;
-  state.settings.heure_soir  = document.getElementById('reg-soir').value;
-  state.settings.api_key     = document.getElementById('reg-api-key').value.trim();
+function sauvegarderReglages(){
+  state.settings.webhook_ia      = document.getElementById('reg-webhook-ia').value.trim();
+  state.settings.webhook_episode = document.getElementById('reg-webhook-episode').value.trim();
+  state.settings.heure_matin     = document.getElementById('reg-matin').value;
+  state.settings.heure_midi      = document.getElementById('reg-midi').value;
+  state.settings.heure_soir      = document.getElementById('reg-soir').value;
   save('settings',state.settings);
-  document.getElementById('ia-api-key').value = state.settings.api_key;
-  updateLancerHint(); renderPlanning();
+  updateLancerHint();renderPlanning();
   showToast('Réglages enregistrés ✓','success');
 }
-async function testerWebhook() {
-  const url=document.getElementById('reg-webhook').value.trim();
-  if(!url){ showToast('Renseigne l\'URL d\'abord','warning'); return; }
+async function testerWebhookEpisode(){
+  const url=document.getElementById('reg-webhook-episode').value.trim();
+  if(!url){showToast('Renseigne l\'URL d\'abord','warning');return;}
   const el=document.getElementById('test-result');
-  el.style.display='block'; el.innerHTML='<span class="spin">↻</span> Test…';
-  try {
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({test:true})});
+  el.style.display='block';el.innerHTML='<span class="spin">↻</span> Test…';
+  try{
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({test:true,episode_type:'test',source:'dashboard_test'})});
     const text=await res.text().catch(()=>'');
     el.innerHTML=`<div style="color:${res.ok?'var(--success)':'var(--danger)'};font-weight:500">${res.ok?'✓':'✗'} HTTP ${res.status}</div>${text?`<pre>${escHtml(text.slice(0,400))}</pre>`:''}`;
-  } catch(err){ el.innerHTML=`<div style="color:var(--danger);font-weight:500">✗ ${escHtml(err.message)}</div>`; }
+  }catch(err){el.innerHTML=`<div style="color:var(--danger);font-weight:500">✗ ${escHtml(err.message)}</div>`;}
 }
 
 // ============================================================
 // PLANNING ACTIONS
 // ============================================================
-function changeWeek(dir){ state.weekOffset+=dir; renderPlanning(); }
-function resetWeek(){ state.weekOffset=0; renderPlanning(); }
-function dupliquerSemaine() {
-  const monday=getMonday(new Date()); monday.setDate(monday.getDate()+state.weekOffset*7);
-  const prev=new Date(monday); prev.setDate(prev.getDate()-7);
+function changeWeek(dir){state.weekOffset+=dir;renderPlanning();}
+function resetWeek(){state.weekOffset=0;renderPlanning();}
+function dupliquerSemaine(){
+  const monday=getMonday(new Date());monday.setDate(monday.getDate()+state.weekOffset*7);
+  const prev=new Date(monday);prev.setDate(prev.getDate()-7);
   getWeekDays(monday).forEach((d,i)=>{
     const src=state.planning.find(p=>p.date===ymd(getWeekDays(prev)[i]));
     const idx=state.planning.findIndex(p=>p.date===ymd(d));
     const merged={...buildEmptyDay(d),theme:src?.theme||'',verset:src?.verset||''};
-    if(idx>=0) state.planning[idx]=merged; else state.planning.push(merged);
+    if(idx>=0)state.planning[idx]=merged;else state.planning.push(merged);
   });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
-  save('planning',state.planning); renderPlanning(); showToast('Dupliquée ✓','success');
+  save('planning',state.planning);renderPlanning();showToast('Dupliquée ✓','success');
 }
-function viderSemaine() {
-  if(!confirm('Vider cette semaine ?')) return;
-  const monday=getMonday(new Date()); monday.setDate(monday.getDate()+state.weekOffset*7);
-  getWeekDays(monday).forEach(d=>{ const idx=state.planning.findIndex(p=>p.date===ymd(d)); if(idx>=0) state.planning[idx]=buildEmptyDay(d); });
-  save('planning',state.planning); renderPlanning(); showToast('Vidée','info');
+function viderSemaine(){
+  if(!confirm('Vider cette semaine ?'))return;
+  const monday=getMonday(new Date());monday.setDate(monday.getDate()+state.weekOffset*7);
+  getWeekDays(monday).forEach(d=>{const idx=state.planning.findIndex(p=>p.date===ymd(d));if(idx>=0)state.planning[idx]=buildEmptyDay(d);});
+  save('planning',state.planning);renderPlanning();showToast('Vidée','info');
 }
-function exporterJSON() {
+function exporterJSON(){
   const blob=new Blob([JSON.stringify({planning:state.planning,settings:state.settings},null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=`souffle-${todayYMD()}.json`; a.click();
-  URL.revokeObjectURL(url); showToast('Export téléchargé ✓','success');
+  const a=document.createElement('a');a.href=url;a.download=`souffle-${todayYMD()}.json`;a.click();
+  URL.revokeObjectURL(url);showToast('Export téléchargé ✓','success');
 }
-function importerJSON(input) {
-  const file=input.files[0]; if(!file) return;
+function importerJSON(input){
+  const file=input.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{ try{ const data=JSON.parse(e.target.result); if(Array.isArray(data.planning)){ state.planning=data.planning; save('planning',state.planning); renderPlanning(); showToast('Importé ✓','success'); } else throw new Error('Format invalide'); } catch(err){ showToast(`Import échoué : ${err.message}`,'danger'); } };
-  reader.readAsText(file); input.value='';
+  reader.onload=e=>{try{const data=JSON.parse(e.target.result);if(Array.isArray(data.planning)){state.planning=data.planning;save('planning',state.planning);renderPlanning();showToast('Importé ✓','success');}else throw new Error('Format invalide');}catch(err){showToast(`Import échoué : ${err.message}`,'danger');}};
+  reader.readAsText(file);input.value='';
 }
 
 // ============================================================
 // MODE AUTO
 // ============================================================
-function toggleAuto() {
+function toggleAuto(){
   state.settings.mode_auto=!state.settings.mode_auto;
-  save('settings',state.settings); updateAutoBtn();
-  showToast(state.settings.mode_auto?'Mode auto ON ✓':'Mode auto OFF', state.settings.mode_auto?'success':'info');
+  save('settings',state.settings);updateAutoBtn();
+  showToast(state.settings.mode_auto?'Mode auto ON ✓':'Mode auto OFF',state.settings.mode_auto?'success':'info');
 }
-function updateAutoBtn() {
+function updateAutoBtn(){
   const btn=document.getElementById('btn-auto');
   btn.className='btn-auto'+(state.settings.mode_auto?' on':'');
   btn.textContent=state.settings.mode_auto?'⏻ Auto ON':'⏻ Auto OFF';
 }
 const lastFired={};
-function checkAuto() {
-  if(!state.settings.mode_auto) return;
-  const now=new Date(), today=todayYMD();
+function checkAuto(){
+  if(!state.settings.mode_auto)return;
+  const now=new Date(),today=todayYMD();
   const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const day=state.planning.find(p=>p.date===today);
-  if(!day||!day.theme||!day.verset) return;
-  [{type:'short_matin',heure:state.settings.heure_matin},{type:'short_midi',heure:state.settings.heure_midi},{type:'long_soir',heure:state.settings.heure_soir}].forEach(s=>{
-    if(hm!==s.heure) return;
-    const key=`${today}|${s.type}`; if(lastFired[key]) return;
-    const slot=day[s.type]; if(['pause','en_cours','terminé'].includes(slot?.statut)) return;
+  if(!day||!day.theme||!day.verset)return;
+  [{type:'short_matin',heure:state.settings.heure_matin},
+   {type:'short_midi', heure:state.settings.heure_midi},
+   {type:'long_soir',  heure:state.settings.heure_soir}].forEach(s=>{
+    if(hm!==s.heure)return;
+    const key=`${today}|${s.type}`;if(lastFired[key])return;
+    const slot=day[s.type];if(['pause','en_cours','terminé'].includes(slot?.statut))return;
     lastFired[key]=true;
     triggerWebhook({date:today,theme:day.theme,verset:day.verset,episode_type:s.type,source:'dashboard_auto'});
   });
 }
-function startClock(){ checkAuto(); setInterval(checkAuto,60000); }
+function startClock(){checkAuto();setInterval(checkAuto,60000);}
 
 // ============================================================
 // NAV & TOAST
 // ============================================================
-function showView(name) {
+function showView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('nav-'+name).classList.add('active');
-  if(name==='lancer') updateLancerHint();
-  if(name==='activite') renderActivite();
+  if(name==='lancer')updateLancerHint();
+  if(name==='activite')renderActivite();
 }
 let toastTimer;
-function showToast(msg,type='info') {
+function showToast(msg,type='info'){
   const colors={success:'var(--success)',danger:'var(--danger)',warning:'var(--warning)',info:'var(--info)'};
   const t=document.getElementById('toast');
   t.innerHTML=`<span style="color:${colors[type]||colors.info}">●</span> ${msg}`;
   t.style.borderColor=colors[type]||colors.info;
   t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
 }
 
 init();
