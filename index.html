@@ -338,7 +338,9 @@ function init() {
   document.getElementById('reg-midi').value  = state.settings.heure_midi;
   document.getElementById('reg-soir').value  = state.settings.heure_soir;
 
-  document.getElementById('ia-date-debut').value = ymd(getMonday(new Date()));
+  // Date en fuseau Martinique GMT-4
+  const nowMQ = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Martinique' }));
+  document.getElementById('ia-date-debut').value = ymd(getMonday(nowMQ));
   document.getElementById('lancer-date').value   = todayYMD();
 
   // Statut mode test/prod
