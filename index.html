@@ -382,8 +382,10 @@ function init() {
 
   // Badge prod/test
   const badge = document.getElementById('ia-prod-badge');
-  badge.className = 'prod-badge ' + (MODE_PROD ? 'prod' : 'test');
-  badge.textContent = MODE_PROD ? '● Production' : '⚠ Mode test';
+  if(badge){
+    badge.className = 'prod-badge ' + (MODE_PROD ? 'prod' : 'test');
+    badge.textContent = MODE_PROD ? '● Production' : '⚠ Mode test';
+  }
 
   updateAutoBtn();
   renderPlanning();
@@ -404,7 +406,7 @@ async function genererSemaine() {
   const lignesJours = days.map((d,i) => {
     const fetes = getFetes(d);
     const label = `${JOURS[i]} ${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`;
-    return fetes.length ? `${label} [${fetes.join(', ')}]` : label;
+    return fetes.length ? `${label} ${fetes.join(' ')}` : label;
   }).join('\n');
 
   // Mettre à jour le sous-titre du panneau IA
@@ -761,3 +763,42 @@ function checkAuto(){
   if(!state.settings.mode_auto) return;
   const now=todayMQ(), today=todayYMD();
   const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const day=state.planning.find(p=>p.date===today);
+  if(!day||!day.theme||!day.verset) return;
+  [{type:'short_matin',heure:state.settings.heure_matin},
+   {type:'short_midi', heure:state.settings.heure_midi},
+   {type:'long_soir',  heure:state.settings.heure_soir}].forEach(s=>{
+    if(hm!==s.heure) return;
+    const key=`${today}|${s.type}`; if(lastFired[key]) return;
+    const slot=day[s.type]; if(['pause','en_cours','terminé'].includes(slot?.statut)) return;
+    lastFired[key]=true;
+    triggerWebhook({date:today,theme:day.theme,verset:day.verset,episode_type:s.type,source:'dashboard_auto'});
+  });
+}
+function startClock(){ checkAuto(); setInterval(checkAuto,60000); }
+
+// ============================================================
+// NAV & TOAST
+// ============================================================
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='lancer') updateLancerHint();
+  if(name==='activite') renderActivite();
+}
+let toastTimer;
+function showToast(msg,type='info'){
+  const colors={success:'var(--success)',danger:'var(--danger)',warning:'var(--warning)',info:'var(--info)'};
+  const t=document.getElementById('toast');
+  t.innerHTML=`<span style="color:${colors[type]||colors.info}">●</span> ${msg}`;
+  t.style.borderColor=colors[type]||colors.info;
+  t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+init();
+</script>
+</body>
+</html>
