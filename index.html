@@ -279,7 +279,10 @@ function getFetes(date) {
     '24-12':['Veille de Noël'],'25-12':['Noël 🎄'],'26-12':['Saint-Étienne'],'31-12':['Saint-Sylvestre']};
   if(fixes[`${j}-${m}`]) fetes.push(...fixes[`${j}-${m}`]);
   const paques=calculerPaques(a);
-  const diff=Math.round((date-paques)/86400000);
+  // Comparaison en UTC pour éviter le décalage GMT-4
+  const dateUTC = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const paquesUTC = Date.UTC(paques.getFullYear(), paques.getMonth(), paques.getDate());
+  const diff = Math.round((dateUTC - paquesUTC) / 86400000);
   const rel={'-46':'Mercredi des Cendres','-7':'Dimanche des Rameaux','-3':'Jeudi Saint',
     '-2':'Vendredi Saint ✝','-1':'Samedi Saint','0':'Pâques 🕊','1':'Lundi de Pâques',
     '39':'Ascension','49':'Pentecôte 🔥','50':'Lundi de Pentecôte','56':'Fête de la Trinité','60':'Corpus Christi'};
@@ -758,6 +761,3 @@ function showToast(msg,type='info'){
 }
 
 init();
-</script>
-</body>
-</html>
