@@ -81,7 +81,8 @@
   .test-result{margin-top:10px;padding:10px 12px;background:var(--bg-surface);border-radius:8px;font-size:12px}
   .test-result pre{white-space:pre-wrap;color:var(--text-muted);font-size:11px;margin-top:4px;max-height:120px;overflow:auto}
   .ia-panel{background:var(--bg-surface);border:1px solid var(--gold-dim);border-radius:12px;padding:16px;margin-bottom:20px}
-  .ia-panel-title{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);font-weight:500;margin-bottom:12px}
+  .ia-panel-title{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);font-weight:500;margin-bottom:4px}
+  .ia-panel-sub{font-size:11px;color:var(--text-dim);margin-bottom:12px}
   .ia-preview{margin-top:14px;display:none}
   .ia-preview-day{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
   .ia-preview-day:last-child{border-bottom:none}
@@ -94,9 +95,9 @@
   .progress-fill{height:100%;background:var(--gold);border-radius:2px;animation:progress 4s ease-in-out forwards}
   .debug-box{background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--text-muted);display:none}
   .debug-box pre{white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
-  .n8n-status{font-size:11px;padding:6px 10px;border-radius:6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-  .n8n-status.test{background:rgba(224,180,104,.1);border:1px solid rgba(224,180,104,.3);color:var(--warning)}
-  .n8n-status.prod{background:rgba(127,176,105,.1);border:1px solid rgba(127,176,105,.3);color:var(--success)}
+  .prod-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 8px;border-radius:999px;margin-bottom:10px}
+  .prod-badge.test{background:rgba(224,180,104,.1);border:1px solid rgba(224,180,104,.3);color:var(--warning)}
+  .prod-badge.prod{background:rgba(127,176,105,.1);border:1px solid rgba(127,176,105,.3);color:var(--success)}
 </style>
 </head>
 <body>
@@ -113,13 +114,12 @@
 
   <!-- VUE PLANNING -->
   <div class="view active" id="view-planning">
+
+    <!-- PANNEAU IA -->
     <div class="ia-panel">
       <div class="ia-panel-title">✦ Génération IA des thèmes</div>
-      <div id="ia-n8n-status" class="n8n-status test">⚠ Mode test — active le workflow n8n pour la production</div>
-      <div class="field">
-        <label>Semaine du (lundi)</label>
-        <input type="date" id="ia-date-debut">
-      </div>
+      <div class="ia-panel-sub" id="ia-semaine-label">Semaine affichée dans le planning</div>
+      <span class="prod-badge" id="ia-prod-badge"></span>
       <button class="btn-ai" id="ia-btn" onclick="genererSemaine()">✦ Générer les 7 thèmes</button>
       <div class="progress-bar" id="ia-progress"><div class="progress-fill"></div></div>
       <div class="debug-box" id="debug-box"><pre id="debug-text"></pre></div>
@@ -132,6 +132,8 @@
         </div>
       </div>
     </div>
+
+    <!-- NAVIGATION SEMAINE -->
     <div class="week-nav">
       <button onclick="changeWeek(-1)">‹</button>
       <span class="week-label" id="week-label" onclick="resetWeek()">Cette semaine</span>
@@ -177,36 +179,32 @@
   <!-- VUE REGLAGES -->
   <div class="view" id="view-reglages">
     <h2 style="font-size:20px;font-weight:500;margin:0 0 18px">Réglages</h2>
-
     <div class="section">
       <div class="section-title">Webhook — Génération IA</div>
       <div class="field">
-        <label>URL webhook IA (n8n souffle-ia)</label>
+        <label>URL webhook IA (souffle-ia)</label>
         <input type="url" id="reg-webhook-ia" placeholder="https://westidiam.app.n8n.cloud/webhook/souffle-ia">
-        <div class="field-hint">Utilisé pour générer les thèmes via Claude dans n8n.</div>
+        <div class="field-hint">Génère les 7 thèmes via Claude dans n8n.</div>
       </div>
     </div>
-
     <div class="section">
       <div class="section-title">Webhook — Épisodes</div>
       <div class="field">
-        <label>URL webhook épisodes (n8n souffle-episode)</label>
+        <label>URL webhook épisodes (souffle-episode)</label>
         <input type="url" id="reg-webhook-episode" placeholder="https://westidiam.app.n8n.cloud/webhook/souffle-episode">
-        <div class="field-hint">Utilisé pour déclencher matin / midi / soir.</div>
+        <div class="field-hint">Déclenche matin / midi / soir.</div>
       </div>
       <button class="btn-secondary" onclick="testerWebhookEpisode()">⚡ Tester le webhook épisodes</button>
       <div id="test-result" class="test-result" style="display:none"></div>
     </div>
-
     <div class="section">
-      <div class="section-title">Horaires</div>
+      <div class="section-title">Horaires (heure Martinique)</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
         <div class="field"><label>☀ Matin</label><input type="time" id="reg-matin" value="07:00"></div>
         <div class="field"><label>☁ Midi</label><input type="time" id="reg-midi" value="12:00"></div>
         <div class="field"><label>☾ Soir</label><input type="time" id="reg-soir" value="21:00"></div>
       </div>
     </div>
-
     <button class="btn-primary" onclick="sauvegarderReglages()">Enregistrer</button>
   </div>
 
@@ -235,11 +233,11 @@
 
 <script>
 // ============================================================
-// URLs N8N — change webhook-test → webhook quand en production
+// CONFIG — changer webhook-test → webhook quand en production
 // ============================================================
-const N8N_IA_URL      = 'https://westidiam.app.n8n.cloud/webhook-test/souffle-ia';
+const N8N_IA_URL      = 'https://westidiam.app.n8n.cloud/webhook/souffle-ia';
 const N8N_EPISODE_URL = 'https://westidiam.app.n8n.cloud/webhook-test/souffle-episode';
-const MODE_PROD = false; // passe à true quand les workflows sont activés
+const MODE_PROD       = true; // souffle-ia est en production
 
 // ============================================================
 // CONSTANTES
@@ -269,26 +267,49 @@ function calculerPaques(y) {
         mo=Math.floor((h+l-7*m+114)/31),dy=((h+l-7*m+114)%31)+1;
   return new Date(y,mo-1,dy);
 }
+
 function getFetes(date) {
   const fetes=[],j=date.getDate(),m=date.getMonth()+1,a=date.getFullYear();
-  const fixes={'1-1':['Jour de l\'An'],'6-1':['Épiphanie'],'2-2':['Chandeleur'],
-    '14-2':['Saint-Valentin'],'19-3':['Saint-Joseph'],'25-3':['Annonciation'],
-    '1-5':['Fête du Travail'],'8-5':['Victoire 1945'],'24-6':['Saint-Jean-Baptiste'],
-    '14-7':['Fête Nationale'],'15-8':['Assomption'],'1-11':['Toussaint'],
-    '2-11':['Fête des Morts'],'11-11':['Armistice'],'8-12':['Immaculée Conception'],
-    '24-12':['Veille de Noël'],'25-12':['Noël 🎄'],'26-12':['Saint-Étienne'],'31-12':['Saint-Sylvestre']};
-  if(fixes[`${j}-${m}`]) fetes.push(...fixes[`${j}-${m}`]);
-  const paques=calculerPaques(a);
-  // Comparaison en UTC pour éviter le décalage GMT-4
-  const dateUTC = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  // Fêtes civiles — entre parenthèses dans lignesJours, inspiration libre pour Claude
+  const civiles={
+    '1-1':'Jour de l\'An','1-5':'Fête du Travail','8-5':'Victoire 1945',
+    '14-7':'Fête Nationale','11-11':'Armistice','2-11':'Fête des Morts'
+  };
+  // Fêtes chrétiennes fixes — entre crochets, thème obligatoire pour Claude
+  const chretiennes={
+    '6-1':'Épiphanie','2-2':'Chandeleur','19-3':'Saint-Joseph','25-3':'Annonciation',
+    '24-6':'Saint-Jean-Baptiste','15-8':'Assomption','1-11':'Toussaint',
+    '8-12':'Immaculée Conception','24-12':'Veille de Noël','25-12':'Noël 🎄',
+    '26-12':'Saint-Étienne','31-12':'Saint-Sylvestre'
+  };
+  const keyDate = `${j}-${m}`;
+  if(civiles[keyDate])    fetes.push(`(${civiles[keyDate]})`);
+  if(chretiennes[keyDate]) fetes.push(`[${chretiennes[keyDate]}]`);
+
+  // Calcul UTC pour éviter décalage GMT-4
+  const paques = calculerPaques(a);
+  const dateUTC   = Date.UTC(a, date.getMonth(), j);
   const paquesUTC = Date.UTC(paques.getFullYear(), paques.getMonth(), paques.getDate());
   const diff = Math.round((dateUTC - paquesUTC) / 86400000);
-  const rel={'-46':'Mercredi des Cendres','-7':'Dimanche des Rameaux','-3':'Jeudi Saint',
-    '-2':'Vendredi Saint ✝','-1':'Samedi Saint','0':'Pâques 🕊','1':'Lundi de Pâques',
-    '39':'Ascension','49':'Pentecôte 🔥','50':'Lundi de Pentecôte','56':'Fête de la Trinité','60':'Corpus Christi'};
+  const rel = {
+    '-46':'[Mercredi des Cendres]','-7':'[Dimanche des Rameaux]','-3':'[Jeudi Saint]',
+    '-2':'[Vendredi Saint ✝]','-1':'[Samedi Saint]','0':'[Pâques 🕊]','1':'[Lundi de Pâques]',
+    '39':'[Ascension]','49':'[Pentecôte 🔥]','50':'[Lundi de Pentecôte]',
+    '56':'[Fête de la Trinité]','60':'[Corpus Christi]'
+  };
   if(rel[String(diff)]) fetes.push(rel[String(diff)]);
-  if(m===5&&date.getDay()===0){const s=new Date(a,4,j+7);if(s.getMonth()!==4)fetes.push('Fête des Mères 💐')}
-  if(m===6&&date.getDay()===0){let cnt=0;for(let d2=1;d2<=j;d2++)if(new Date(a,5,d2).getDay()===0)cnt++;if(cnt===3)fetes.push('Fête des Pères 👨‍👧')}
+
+  // Fête des Mères — dernier dimanche de mai
+  if(m===5 && date.getDay()===0){
+    const suiv=new Date(a,4,j+7);
+    if(suiv.getMonth()!==4) fetes.push('Fête des Mères 💐');
+  }
+  // Fête des Pères — 3e dimanche de juin
+  if(m===6 && date.getDay()===0){
+    let cnt=0;
+    for(let d2=1;d2<=j;d2++) if(new Date(a,5,d2).getDay()===0) cnt++;
+    if(cnt===3) fetes.push('Fête des Pères 👨‍👧');
+  }
   return fetes;
 }
 
@@ -305,22 +326,39 @@ const load = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch{ ret
 const save = (k,v) => localStorage.setItem(k,JSON.stringify(v));
 
 // ============================================================
-// DATES
+// UTILITAIRES DATES
 // ============================================================
-const todayYMD = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+function todayMQ() {
+  // Date actuelle en heure Martinique (GMT-4)
+  return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Martinique'}));
+}
+function todayYMD() {
+  const d = todayMQ();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
 function getMonday(date) {
-  const d=new Date(date),day=d.getDay();
-  d.setDate(d.getDate()+(day===0?-6:1-day));d.setHours(0,0,0,0);return d;
+  const d=new Date(date), day=d.getDay();
+  d.setDate(d.getDate()+(day===0?-6:1-day));
+  d.setHours(0,0,0,0);
+  return d;
 }
 const getWeekDays = m => Array.from({length:7},(_,i)=>{ const d=new Date(m);d.setDate(m.getDate()+i);return d; });
 const buildEmptyDay = date => ({
-  date:ymd(date),jour:JOURS[(date.getDay()+6)%7],theme:'',verset:'',
+  date:ymd(date), jour:JOURS[(date.getDay()+6)%7], theme:'', verset:'',
   short_matin:{statut:'prêt',lance_le:null},
   short_midi: {statut:'prêt',lance_le:null},
   long_soir:  {statut:'prêt',lance_le:null}
 });
 const escHtml = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+// Lundi de la semaine affichée (selon weekOffset)
+function getMondayCourant() {
+  const monday = getMonday(todayMQ());
+  monday.setDate(monday.getDate() + state.weekOffset * 7);
+  return monday;
+}
 
 // ============================================================
 // INIT
@@ -331,7 +369,7 @@ function init() {
   state.activite  = load('activite')  || [];
 
   if(!state.planning.length){
-    state.planning = getWeekDays(getMonday(new Date())).map(buildEmptyDay);
+    state.planning = getWeekDays(getMonday(todayMQ())).map(buildEmptyDay);
     save('planning',state.planning);
   }
 
@@ -340,18 +378,12 @@ function init() {
   document.getElementById('reg-matin').value = state.settings.heure_matin;
   document.getElementById('reg-midi').value  = state.settings.heure_midi;
   document.getElementById('reg-soir').value  = state.settings.heure_soir;
+  document.getElementById('lancer-date').value = todayYMD();
 
-  // Date en fuseau Martinique GMT-4
-  const nowMQ = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Martinique' }));
-  document.getElementById('ia-date-debut').value = ymd(getMonday(nowMQ));
-  document.getElementById('lancer-date').value   = todayYMD();
-
-  // Statut mode test/prod
-  const statusEl = document.getElementById('ia-n8n-status');
-  if(MODE_PROD){
-    statusEl.className='n8n-status prod';
-    statusEl.textContent='✓ Mode production actif';
-  }
+  // Badge prod/test
+  const badge = document.getElementById('ia-prod-badge');
+  badge.className = 'prod-badge ' + (MODE_PROD ? 'prod' : 'test');
+  badge.textContent = MODE_PROD ? '● Production' : '⚠ Mode test';
 
   updateAutoBtn();
   renderPlanning();
@@ -361,39 +393,27 @@ function init() {
 }
 
 // ============================================================
-// IA — GÉNÉRATION VIA N8N
+// IA — GÉNÉRATION (calée sur la semaine affichée)
 // ============================================================
 async function genererSemaine() {
-  const dateDebut = document.getElementById('ia-date-debut').value;
-  if(!dateDebut){ showToast('Sélectionne une date','warning'); return; }
-
-  const monday = new Date(dateDebut+'T12:00');
+  const monday = getMondayCourant();
   const days   = getWeekDays(monday);
+  const annee  = monday.getFullYear();
 
-  const lignesJours = days.map((d,i)=>{
+  // Construire lignesJours avec les fêtes détectées
+  const lignesJours = days.map((d,i) => {
     const fetes = getFetes(d);
     const label = `${JOURS[i]} ${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`;
     return fetes.length ? `${label} [${fetes.join(', ')}]` : label;
   }).join('\n');
 
-  const prompt = `Tu es un assistant pour "Le Souffle de l'Éternel", chaîne YouTube chrétienne francophone.
-Génère 7 thèmes et versets pour cette semaine (2026) :
-
-${lignesJours}
-
-Règles :
-- Thème court (3-6 mots max)
-- Verset biblique précis (Livre chapitre:verset)
-- Si fête chrétienne ce jour → thème OBLIGATOIREMENT lié à cette fête
-- Pas de répétition de livres bibliques entre les jours
-- Chaque semaine UNIQUE selon le temps liturgique 2026
-- Langue : français
-
-Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
-[{"jour":"lundi","theme":"...","verset":"...","fete":""},{"jour":"mardi","theme":"...","verset":"...","fete":""},{"jour":"mercredi","theme":"...","verset":"...","fete":""},{"jour":"jeudi","theme":"...","verset":"...","fete":""},{"jour":"vendredi","theme":"...","verset":"...","fete":""},{"jour":"samedi","theme":"...","verset":"...","fete":""},{"jour":"dimanche","theme":"...","verset":"...","fete":""}]`;
+  // Mettre à jour le sous-titre du panneau IA
+  const fin = new Date(monday); fin.setDate(fin.getDate()+6);
+  document.getElementById('ia-semaine-label').textContent =
+    `Semaine du ${monday.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})} au ${fin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`;
 
   const btn = document.getElementById('ia-btn');
-  btn.disabled=true;btn.innerHTML='<span class="spin">✦</span> Génération…';
+  btn.disabled=true; btn.innerHTML='<span class="spin">✦</span> Génération…';
   document.getElementById('ia-progress').style.display='block';
   document.getElementById('ia-preview').style.display='none';
   document.getElementById('debug-box').style.display='none';
@@ -404,7 +424,7 @@ Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
     const res = await fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ body:{ lignesJours, annee:'2026' } })
+      body:JSON.stringify({ body:{ lignesJours, annee: String(annee) } })
     });
 
     if(!res.ok){
@@ -416,17 +436,13 @@ Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
     const data = await res.json();
     showDebug(`RÉPONSE n8n:\n${JSON.stringify(data,null,2)}`);
 
-    // Accepte { semaine:[...] } ou directement [...]
-    let semaine = data.semaine || (Array.isArray(data)?data:null);
-
-    // Si n8n renvoie le texte brut, on parse le JSON dedans
+    let semaine = data.semaine || (Array.isArray(data) ? data : null);
     if(!semaine && data.text){
       const match = data.text.match(/\[[\s\S]*\]/);
       if(match) semaine = JSON.parse(match[0]);
     }
-
-    if(!semaine||!Array.isArray(semaine)||semaine.length!==7)
-      throw new Error('Réponse n8n invalide — vérifie le nœud Code dans n8n');
+    if(!semaine || !Array.isArray(semaine) || semaine.length!==7)
+      throw new Error('Réponse n8n invalide — vérifie le nœud Parser JSON');
 
     iaSemaineProposa = { semaine, monday };
     afficherPreview(semaine, days);
@@ -435,7 +451,7 @@ Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
     showToast(`Erreur IA : ${err.message}`,'danger');
     showDebug(`EXCEPTION: ${err.name}\n${err.message}`);
   } finally {
-    btn.disabled=false;btn.innerHTML='✦ Générer les 7 thèmes';
+    btn.disabled=false; btn.innerHTML='✦ Générer les 7 thèmes';
     document.getElementById('ia-progress').style.display='none';
   }
 }
@@ -465,14 +481,13 @@ function appliquerSemaine(){
   const {semaine,monday}=iaSemaineProposa;
   const days=getWeekDays(monday);
   days.forEach((d,i)=>{
-    const ds=ymd(d),j=semaine[i];
-    const dayObj={...buildEmptyDay(d),theme:j.theme,verset:j.verset};
+    const ds=ymd(d), j=semaine[i];
+    const dayObj={...buildEmptyDay(d), theme:j.theme, verset:j.verset};
     const idx=state.planning.findIndex(p=>p.date===ds);
-    if(idx>=0)state.planning[idx]=dayObj;else state.planning.push(dayObj);
+    if(idx>=0) state.planning[idx]=dayObj; else state.planning.push(dayObj);
   });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
   save('planning',state.planning);
-  state.weekOffset=Math.round((monday-getMonday(new Date()))/604800000);
   renderPlanning();
   document.getElementById('ia-preview').style.display='none';
   document.getElementById('debug-box').style.display='none';
@@ -484,27 +499,34 @@ function appliquerSemaine(){
 // PLANNING RENDER
 // ============================================================
 function renderPlanning(){
-  const monday=getMonday(new Date());
-  monday.setDate(monday.getDate()+state.weekOffset*7);
-  const days=getWeekDays(monday);
-  days.forEach(d=>{ if(!state.planning.find(p=>p.date===ymd(d)))state.planning.push(buildEmptyDay(d)); });
+  const monday = getMondayCourant();
+  const days   = getWeekDays(monday);
+
+  // Créer les jours manquants
+  days.forEach(d=>{ if(!state.planning.find(p=>p.date===ymd(d))) state.planning.push(buildEmptyDay(d)); });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
   save('planning',state.planning);
 
+  // Label semaine
   const lbl=document.getElementById('week-label');
-  if(state.weekOffset===0){lbl.textContent='Cette semaine';lbl.classList.add('current');}
-  else if(state.weekOffset===-1){lbl.textContent='Semaine passée';lbl.classList.remove('current');}
-  else if(state.weekOffset===1){lbl.textContent='Semaine prochaine';lbl.classList.remove('current');}
-  else{
-    const fin=new Date(monday);fin.setDate(fin.getDate()+6);
+  if(state.weekOffset===0)      { lbl.textContent='Cette semaine';     lbl.classList.add('current'); }
+  else if(state.weekOffset===-1){ lbl.textContent='Semaine passée';    lbl.classList.remove('current'); }
+  else if(state.weekOffset===1) { lbl.textContent='Semaine prochaine'; lbl.classList.remove('current'); }
+  else {
+    const fin=new Date(monday); fin.setDate(fin.getDate()+6);
     lbl.textContent=`${monday.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})} → ${fin.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`;
     lbl.classList.remove('current');
   }
 
+  // Mettre à jour le sous-titre IA
+  const fin=new Date(monday); fin.setDate(fin.getDate()+6);
+  document.getElementById('ia-semaine-label').textContent =
+    `Semaine du ${monday.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})} au ${fin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`;
+
   const today=todayYMD();
   document.getElementById('planning-list').innerHTML=days.map(d=>{
     const day=state.planning.find(p=>p.date===ymd(d))||buildEmptyDay(d);
-    return buildDayCard(day,day.date===today);
+    return buildDayCard(day, day.date===today);
   }).join('');
 }
 
@@ -537,28 +559,30 @@ function buildDayCard(day,isToday){
       <span class="day-name" style="${isToday?'color:var(--gold)':''}">${day.jour}</span>
       <span class="day-date">${dl}</span>${feteBadge}
     </div>
-    <input class="mb8" type="text" placeholder="Thème" value="${escHtml(day.theme)}" onchange="updateDay('${day.date}','theme',this.value)">
-    <input class="mb14 verset-input" type="text" placeholder="Verset" value="${escHtml(day.verset)}" onchange="updateDay('${day.date}','verset',this.value)">
+    <input class="mb8" type="text" placeholder="Thème" value="${escHtml(day.theme)}"
+      onchange="updateDay('${day.date}','theme',this.value)">
+    <input class="mb14 verset-input" type="text" placeholder="Verset"
+      value="${escHtml(day.verset)}" onchange="updateDay('${day.date}','verset',this.value)">
     ${slots}
   </div>`;
 }
 
 function updateDay(date,field,value){
   const idx=state.planning.findIndex(p=>p.date===date);
-  if(idx>=0){state.planning[idx][field]=value;save('planning',state.planning);}
+  if(idx>=0){ state.planning[idx][field]=value; save('planning',state.planning); }
 }
 function togglePause(date,type){
-  const idx=state.planning.findIndex(p=>p.date===date);if(idx<0)return;
-  state.planning[idx][type].statut=state.planning[idx][type].statut==='pause'?'prêt':'pause';
-  save('planning',state.planning);renderPlanning();
+  const idx=state.planning.findIndex(p=>p.date===date); if(idx<0) return;
+  state.planning[idx][type].statut = state.planning[idx][type].statut==='pause' ? 'prêt' : 'pause';
+  save('planning',state.planning); renderPlanning();
 }
 
 // ============================================================
-// WEBHOOK ÉPISODES (Workflow 2)
+// WEBHOOK ÉPISODES
 // ============================================================
 async function triggerWebhook({date,theme,verset,episode_type,source}){
   const url = state.settings.webhook_episode || N8N_EPISODE_URL;
-  if(!url){showToast('URL webhook épisodes manquante','danger');return{ok:false};}
+  if(!url){ showToast('URL webhook épisodes manquante','danger'); return {ok:false}; }
   const entry={timestamp:new Date().toISOString(),date,type:episode_type,theme,verset,statut:'en_cours',source,reponse_webhook:null};
   try{
     const res=await fetch(url,{
@@ -566,32 +590,31 @@ async function triggerWebhook({date,theme,verset,episode_type,source}){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         date, theme, verset, episode_type, source,
-        // Traduction pour ton workflow n8n souffle-eternel
-        type: episode_type === 'long_soir' ? 'long' : 'short',
+        type: episode_type==='long_soir' ? 'long' : 'short',
         jour: new Date(date+'T12:00').toLocaleDateString('fr-FR',{weekday:'long'})
       })
     });
     const text=await res.text().catch(()=>'');
-    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     updateSlotStatut(date,episode_type,'en_cours');
     entry.reponse_webhook=text.slice(0,500);
-    addActivite(entry);showToast('Épisode déclenché ✓','success');return{ok:true};
+    addActivite(entry); showToast('Épisode déclenché ✓','success'); return{ok:true};
   }catch(err){
     updateSlotStatut(date,episode_type,'erreur');
-    entry.statut='erreur';entry.reponse_webhook=err.message;
-    addActivite(entry);showToast(`Échec : ${err.message}`,'danger');return{ok:false};
+    entry.statut='erreur'; entry.reponse_webhook=err.message;
+    addActivite(entry); showToast(`Échec : ${err.message}`,'danger'); return{ok:false};
   }
 }
 function updateSlotStatut(date,type,statut){
   const idx=state.planning.findIndex(p=>p.date===date);
-  if(idx>=0){state.planning[idx][type]={statut,lance_le:new Date().toISOString()};save('planning',state.planning);renderPlanning();}
+  if(idx>=0){ state.planning[idx][type]={statut,lance_le:new Date().toISOString()}; save('planning',state.planning); renderPlanning(); }
 }
 function addActivite(entry){
   state.activite=[entry,...state.activite].slice(0,100);
-  save('activite',state.activite);renderActivite();
+  save('activite',state.activite); renderActivite();
 }
 async function triggerSlot(date,type){
-  const day=state.planning.find(p=>p.date===date);if(!day)return;
+  const day=state.planning.find(p=>p.date===date); if(!day) return;
   await triggerWebhook({date,theme:day.theme,verset:day.verset,episode_type:type,source:'dashboard_manuel'});
 }
 
@@ -608,16 +631,16 @@ function updateLancerHint(){
   document.getElementById('lancer-hint').style.display=state.settings.webhook_episode?'none':'flex';
 }
 async function lancerManuel(){
-  if(lancerLoading)return;
+  if(lancerLoading) return;
   const date=document.getElementById('lancer-date').value;
   const theme=document.getElementById('lancer-theme').value.trim();
   const verset=document.getElementById('lancer-verset').value.trim();
-  if(!theme||!verset){showToast('Renseigne thème et verset','warning');return;}
+  if(!theme||!verset){ showToast('Renseigne thème et verset','warning'); return; }
   lancerLoading=true;
   const btn=document.getElementById('lancer-btn');
-  btn.disabled=true;btn.innerHTML='<span class="spin">↻</span> Envoi…';
+  btn.disabled=true; btn.innerHTML='<span class="spin">↻</span> Envoi…';
   await triggerWebhook({date,theme,verset,episode_type:state.lancerType,source:'dashboard_manuel'});
-  lancerLoading=false;btn.disabled=false;btn.innerHTML='➤ Déclencher';
+  lancerLoading=false; btn.disabled=false; btn.innerHTML='➤ Déclencher';
 }
 
 // ============================================================
@@ -630,10 +653,14 @@ function renderActivite(){
     return;
   }
   list.innerHTML=state.activite.map(a=>{
-    const conf=TYPE_CFG[a.type]||{},stat=STATUT_CFG[a.statut]||STATUT_CFG['prêt'];
+    const conf=TYPE_CFG[a.type]||{}, stat=STATUT_CFG[a.statut]||STATUT_CFG['prêt'];
     const ts=new Date(a.timestamp).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'});
     return `<div class="log-entry">
-      <div class="log-header"><span>${conf.icon||'?'} ${conf.label||a.type}</span><span class="badge">${a.source==='dashboard_auto'?'Auto':'Manuel'}</span><span style="margin-left:auto;font-size:11px;font-weight:500;color:${stat.color}">${stat.label}</span></div>
+      <div class="log-header">
+        <span>${conf.icon||'?'} ${conf.label||a.type}</span>
+        <span class="badge">${a.source==='dashboard_auto'?'Auto':'Manuel'}</span>
+        <span style="margin-left:auto;font-size:11px;font-weight:500;color:${stat.color}">${stat.label}</span>
+      </div>
       <div class="log-theme">${escHtml(a.theme||'—')}</div>
       <div class="log-verset">${escHtml(a.verset||'—')}</div>
       <div class="log-meta">${ts} · ${a.date}</div>
@@ -642,8 +669,8 @@ function renderActivite(){
   }).join('');
 }
 function viderActivite(){
-  if(!confirm('Vider tout l\'historique ?'))return;
-  state.activite=[];save('activite',state.activite);renderActivite();showToast('Historique vidé','info');
+  if(!confirm('Vider tout l\'historique ?')) return;
+  state.activite=[]; save('activite',state.activite); renderActivite(); showToast('Historique vidé','info');
 }
 
 // ============================================================
@@ -656,55 +683,64 @@ function sauvegarderReglages(){
   state.settings.heure_midi      = document.getElementById('reg-midi').value;
   state.settings.heure_soir      = document.getElementById('reg-soir').value;
   save('settings',state.settings);
-  updateLancerHint();renderPlanning();
+  updateLancerHint(); renderPlanning();
   showToast('Réglages enregistrés ✓','success');
 }
 async function testerWebhookEpisode(){
   const url=document.getElementById('reg-webhook-episode').value.trim();
-  if(!url){showToast('Renseigne l\'URL d\'abord','warning');return;}
+  if(!url){ showToast('Renseigne l\'URL d\'abord','warning'); return; }
   const el=document.getElementById('test-result');
-  el.style.display='block';el.innerHTML='<span class="spin">↻</span> Test…';
+  el.style.display='block'; el.innerHTML='<span class="spin">↻</span> Test…';
   try{
     const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({test:true,episode_type:'test',source:'dashboard_test'})});
     const text=await res.text().catch(()=>'');
     el.innerHTML=`<div style="color:${res.ok?'var(--success)':'var(--danger)'};font-weight:500">${res.ok?'✓':'✗'} HTTP ${res.status}</div>${text?`<pre>${escHtml(text.slice(0,400))}</pre>`:''}`;
-  }catch(err){el.innerHTML=`<div style="color:var(--danger);font-weight:500">✗ ${escHtml(err.message)}</div>`;}
+  }catch(err){ el.innerHTML=`<div style="color:var(--danger);font-weight:500">✗ ${escHtml(err.message)}</div>`; }
 }
 
 // ============================================================
 // PLANNING ACTIONS
 // ============================================================
-function changeWeek(dir){state.weekOffset+=dir;renderPlanning();}
-function resetWeek(){state.weekOffset=0;renderPlanning();}
+function changeWeek(dir){ state.weekOffset+=dir; renderPlanning(); }
+function resetWeek(){ state.weekOffset=0; renderPlanning(); }
+
 function dupliquerSemaine(){
-  const monday=getMonday(new Date());monday.setDate(monday.getDate()+state.weekOffset*7);
-  const prev=new Date(monday);prev.setDate(prev.getDate()-7);
+  const monday=getMondayCourant();
+  const prev=new Date(monday); prev.setDate(prev.getDate()-7);
   getWeekDays(monday).forEach((d,i)=>{
     const src=state.planning.find(p=>p.date===ymd(getWeekDays(prev)[i]));
     const idx=state.planning.findIndex(p=>p.date===ymd(d));
     const merged={...buildEmptyDay(d),theme:src?.theme||'',verset:src?.verset||''};
-    if(idx>=0)state.planning[idx]=merged;else state.planning.push(merged);
+    if(idx>=0) state.planning[idx]=merged; else state.planning.push(merged);
   });
   state.planning.sort((a,b)=>a.date.localeCompare(b.date));
-  save('planning',state.planning);renderPlanning();showToast('Dupliquée ✓','success');
+  save('planning',state.planning); renderPlanning(); showToast('Dupliquée ✓','success');
 }
 function viderSemaine(){
-  if(!confirm('Vider cette semaine ?'))return;
-  const monday=getMonday(new Date());monday.setDate(monday.getDate()+state.weekOffset*7);
-  getWeekDays(monday).forEach(d=>{const idx=state.planning.findIndex(p=>p.date===ymd(d));if(idx>=0)state.planning[idx]=buildEmptyDay(d);});
-  save('planning',state.planning);renderPlanning();showToast('Vidée','info');
+  if(!confirm('Vider cette semaine ?')) return;
+  getWeekDays(getMondayCourant()).forEach(d=>{
+    const idx=state.planning.findIndex(p=>p.date===ymd(d));
+    if(idx>=0) state.planning[idx]=buildEmptyDay(d);
+  });
+  save('planning',state.planning); renderPlanning(); showToast('Vidée','info');
 }
 function exporterJSON(){
   const blob=new Blob([JSON.stringify({planning:state.planning,settings:state.settings},null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`souffle-${todayYMD()}.json`;a.click();
-  URL.revokeObjectURL(url);showToast('Export téléchargé ✓','success');
+  const a=document.createElement('a'); a.href=url; a.download=`souffle-${todayYMD()}.json`; a.click();
+  URL.revokeObjectURL(url); showToast('Export téléchargé ✓','success');
 }
 function importerJSON(input){
-  const file=input.files[0];if(!file)return;
+  const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=e=>{try{const data=JSON.parse(e.target.result);if(Array.isArray(data.planning)){state.planning=data.planning;save('planning',state.planning);renderPlanning();showToast('Importé ✓','success');}else throw new Error('Format invalide');}catch(err){showToast(`Import échoué : ${err.message}`,'danger');}};
-  reader.readAsText(file);input.value='';
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(Array.isArray(data.planning)){ state.planning=data.planning; save('planning',state.planning); renderPlanning(); showToast('Importé ✓','success'); }
+      else throw new Error('Format invalide');
+    }catch(err){ showToast(`Import échoué : ${err.message}`,'danger'); }
+  };
+  reader.readAsText(file); input.value='';
 }
 
 // ============================================================
@@ -712,8 +748,8 @@ function importerJSON(input){
 // ============================================================
 function toggleAuto(){
   state.settings.mode_auto=!state.settings.mode_auto;
-  save('settings',state.settings);updateAutoBtn();
-  showToast(state.settings.mode_auto?'Mode auto ON ✓':'Mode auto OFF',state.settings.mode_auto?'success':'info');
+  save('settings',state.settings); updateAutoBtn();
+  showToast(state.settings.mode_auto?'Mode auto ON ✓':'Mode auto OFF', state.settings.mode_auto?'success':'info');
 }
 function updateAutoBtn(){
   const btn=document.getElementById('btn-auto');
@@ -722,42 +758,6 @@ function updateAutoBtn(){
 }
 const lastFired={};
 function checkAuto(){
-  if(!state.settings.mode_auto)return;
-  const now=new Date(),today=todayYMD();
+  if(!state.settings.mode_auto) return;
+  const now=todayMQ(), today=todayYMD();
   const hm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const day=state.planning.find(p=>p.date===today);
-  if(!day||!day.theme||!day.verset)return;
-  [{type:'short_matin',heure:state.settings.heure_matin},
-   {type:'short_midi', heure:state.settings.heure_midi},
-   {type:'long_soir',  heure:state.settings.heure_soir}].forEach(s=>{
-    if(hm!==s.heure)return;
-    const key=`${today}|${s.type}`;if(lastFired[key])return;
-    const slot=day[s.type];if(['pause','en_cours','terminé'].includes(slot?.statut))return;
-    lastFired[key]=true;
-    triggerWebhook({date:today,theme:day.theme,verset:day.verset,episode_type:s.type,source:'dashboard_auto'});
-  });
-}
-function startClock(){checkAuto();setInterval(checkAuto,60000);}
-
-// ============================================================
-// NAV & TOAST
-// ============================================================
-function showView(name){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-  if(name==='lancer')updateLancerHint();
-  if(name==='activite')renderActivite();
-}
-let toastTimer;
-function showToast(msg,type='info'){
-  const colors={success:'var(--success)',danger:'var(--danger)',warning:'var(--warning)',info:'var(--info)'};
-  const t=document.getElementById('toast');
-  t.innerHTML=`<span style="color:${colors[type]||colors.info}">●</span> ${msg}`;
-  t.style.borderColor=colors[type]||colors.info;
-  t.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
-}
-
-init();
