@@ -798,6 +798,26 @@ function showToast(msg,type='info'){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
 }
 
+// Exposer les fonctions globalement pour les onclick HTML
+window.toggleAuto      = toggleAuto;
+window.genererSemaine  = genererSemaine;
+window.appliquerSemaine= appliquerSemaine;
+window.changeWeek      = changeWeek;
+window.resetWeek       = resetWeek;
+window.showView        = showView;
+window.selectType      = selectType;
+window.lancerManuel    = lancerManuel;
+window.viderActivite   = viderActivite;
+window.sauvegarderReglages   = sauvegarderReglages;
+window.testerWebhookEpisode  = testerWebhookEpisode;
+window.dupliquerSemaine= dupliquerSemaine;
+window.viderSemaine    = viderSemaine;
+window.exporterJSON    = exporterJSON;
+window.importerJSON    = importerJSON;
+window.updateDay       = updateDay;
+window.togglePause     = togglePause;
+window.triggerSlot     = triggerSlot;
+
 init();
 </script>
 </body>
