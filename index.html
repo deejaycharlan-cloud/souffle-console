@@ -399,7 +399,7 @@ Réponds UNIQUEMENT avec ce tableau JSON, rien d'autre :
     const res = await fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ body:{ lignesJours, annee:'2026', prompt } })
+      body:JSON.stringify({ body:{ lignesJours, annee:'2026' } })
     });
 
     if(!res.ok){
@@ -559,7 +559,12 @@ async function triggerWebhook({date,theme,verset,episode_type,source}){
     const res=await fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({date,theme,verset,episode_type,source})
+      body:JSON.stringify({
+        date, theme, verset, episode_type, source,
+        // Traduction pour ton workflow n8n souffle-eternel
+        type: episode_type === 'long_soir' ? 'long' : 'short',
+        jour: new Date(date+'T12:00').toLocaleDateString('fr-FR',{weekday:'long'})
+      })
     });
     const text=await res.text().catch(()=>'');
     if(!res.ok)throw new Error(`HTTP ${res.status}`);
