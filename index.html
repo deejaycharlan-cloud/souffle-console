@@ -423,10 +423,13 @@ async function genererSemaine() {
   const url = state.settings.webhook_ia || N8N_IA_URL;
 
   try {
+    const payload = { body:{ lignesJours, annee: String(annee) } };
+    showDebug(`ENVOI:\n${JSON.stringify(payload, null, 2)}`);
+
     const res = await fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ body:{ lignesJours, annee: String(annee) } })
+      body:JSON.stringify(payload)
     });
 
     if(!res.ok){
